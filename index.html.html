@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Виртуалды зертхана: Органикалық қосылыстарды айдау</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9eeed;--panel:#fbfcfb;--ink:#17282c;--mute:#5d7075;--line:#c9d4d3;--teal:#0f6b78;--flame:#e8a317;--red:#c23b2e;--ok:#2a8a4f;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans",system-ui,sans-serif;padding:16px}
+h1{font-size:1.5rem;margin:0 0 4px}h2{font-size:1.05rem;margin:0 0 10px}
+.sub{color:var(--mute);margin:0 0 16px;max-width:70ch}
+.grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+.mono{font-family:"IBM Plex Mono",monospace}
+svg{width:100%;height:auto;display:block}
+.readout{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.readout div{flex:1;min-width:110px;background:#173b43;color:#d9f3f0;border-radius:8px;padding:8px 10px}
+.readout b{display:block;font:500 1.5rem "IBM Plex Mono",monospace;color:#fff}
+.readout span{font-size:.8rem;opacity:.8}
+label.chk{display:flex;gap:8px;align-items:flex-start;padding:5px 0;cursor:pointer}
+input[type=range]{width:100%;accent-color:var(--teal)}
+button{font:inherit;border:1px solid var(--teal);background:var(--teal);color:#fff;border-radius:7px;padding:8px 12px;cursor:pointer;margin:3px 3px 3px 0}
+button.alt{background:#fff;color:var(--teal)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--flame);outline-offset:2px}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+th{background:#e1ebea}
+td.n{font-family:"IBM Plex Mono",monospace}
+.msg{min-height:3em;padding:8px 10px;border-left:4px solid var(--teal);background:#e7f1f1;border-radius:4px;margin-top:8px}
+.msg.warn{border-color:var(--red);background:#f9e6e3}
+.msg.good{border-color:var(--ok);background:#e3f3e9}
+.tbl-wrap{overflow-x:auto}
+details{border-top:1px solid var(--line);padding:8px 0}summary{cursor:pointer;font-weight:500}
+canvas{width:100%;height:auto;display:block}
+.cyls{display:flex;gap:8px;justify-content:space-between}
+</style>
+</head>
+<body>
+<h1>Органикалық қосылыстарды айдау</h1>
+<p class="sub">Виртуалды зертханалық жұмыс № 3. Мұнайды Вюрц колбасында фракциялап айдап, фракциялардың көлемін өлшеңіз және құрамын есептеңіз.</p>
+
+<div class="grid">
+<div>
+  <div class="panel">
+    <h2>Айдау қондырғысы</h2>
+    <svg viewBox="0 0 700 330" role="img" aria-label="Айдау қондырғысының сызбасы">
+      <defs><clipPath id="fc"><circle cx="130" cy="215" r="62"/></clipPath></defs>
+      <!-- штатив -->
+      <rect x="20" y="300" width="660" height="10" fill="#9fb0b0"/>
+      <rect x="40" y="60" width="8" height="240" fill="#7f9292"/>
+      <rect x="40" y="95" width="75" height="6" fill="#7f9292"/>
+      <rect x="400" y="130" width="6" height="170" fill="#7f9292"/>
+      <rect x="380" y="150" width="45" height="6" fill="#7f9292"/>
+      <!-- жылытқыш -->
+      <rect x="85" y="268" width="90" height="30" rx="4" fill="#5a6b6e"/>
+      <path id="flame" d="M130 268 q-14 -22 0 -38 q14 16 0 38z" fill="#e8a317" opacity="0"/>
+      <!-- колба -->
+      <rect x="116" y="88" width="28" height="70" fill="#f4fafa" stroke="#6a8486" stroke-width="2"/>
+      <circle cx="130" cy="215" r="62" fill="#f4fafa" stroke="#6a8486" stroke-width="2"/>
+      <rect id="liq" x="68" y="215" width="124" height="62" fill="#8a5a1c" opacity=".85" clip-path="url(#fc)"/>
+      <circle id="bub1" cx="110" cy="250" r="3" fill="#fff" opacity="0"/>
+      <circle id="bub2" cx="150" cy="245" r="2.5" fill="#fff" opacity="0"/>
+      <!-- термометр -->
+      <rect x="126" y="40" width="8" height="82" fill="#fff" stroke="#6a8486"/>
+      <rect id="mer" x="129" y="110" width="2" height="12" fill="#c23b2e"/>
+      <rect x="120" y="86" width="20" height="8" fill="#555"/>
+      <!-- бүйір түтік -->
+      <path d="M144 112 L330 150 L335 142" fill="none" stroke="#6a8486" stroke-width="7"/>
+      <path d="M144 112 L330 150" fill="none" stroke="#f4fafa" stroke-width="3"/>
+      <!-- тоңазытқыш -->
+      <g transform="rotate(8 400 160)">
+        <rect x="300" y="138" width="230" height="34" fill="#f4fafa" stroke="#6a8486" stroke-width="2"/>
+        <rect id="wtr" x="304" y="143" width="222" height="24" fill="#4aa9c9" opacity="0"/>
+        <line x1="300" y1="155" x2="560" y2="155" stroke="#6a8486" stroke-width="3"/>
+        <path d="M330 172 v22" stroke="#4aa9c9" stroke-width="5"/>
+        <path d="M505 138 v-22" stroke="#4aa9c9" stroke-width="5"/>
+      </g>
+      <text x="300" y="215" fill="#4aa9c9" font-size="13">су кіреді ↑</text>
+      <text x="505" y="95" fill="#4aa9c9" font-size="13">су шығады ↑</text>
+      <!-- аллонж -->
+      <path d="M528 190 L560 216 L562 236" fill="none" stroke="#6a8486" stroke-width="6"/>
+      <circle id="drop" cx="562" cy="236" r="3.5" fill="#8a5a1c" opacity="0"/>
+      <!-- қабылдағыш -->
+      <path d="M535 245 h60 l-6 50 h-48z" fill="#f4fafa" stroke="#6a8486" stroke-width="2"/>
+      <rect id="recfill" x="545" y="295" width="40" height="0" fill="#c9a35a"/>
+      <!-- белгілер -->
+      <g font-size="13" fill="#17282c">
+        <text x="20" y="240">1 колба</text><text x="150" y="36">2 термометр</text>
+        <text x="320" y="125">3 тоңазытқыш</text><text x="590" y="225">4 аллонж</text><text x="600" y="285">5 қабылдағыш</text>
+      </g>
+    </svg>
+    <div class="readout">
+      <div><b id="rT">20.0</b><span>Термометр, °C</span></div>
+      <div><b id="rV">0.0</b><span>Айдалған, мл</span></div>
+      <div><b id="rF">60</b><span>Колбада, мл</span></div>
+      <div><b id="rt">0:00</b><span>Уақыт</span></div>
+    </div>
+    <div class="msg" id="msg" role="status" aria-live="polite">Алдымен дайындық тізімін орындаңыз.</div>
+  </div>
+
+  <div class="panel">
+    <h2>Температура — уақыт графигі</h2>
+    <canvas id="chart" width="700" height="260"></canvas>
+  </div>
+</div>
+
+<div>
+  <div class="panel">
+    <h2>1. Дайындық</h2>
+    <label class="chk"><input type="checkbox" class="prep"> Колбаға 60 мл мұнай құйылды (көлемнің 2/3-інен аспайды)</label>
+    <label class="chk"><input type="checkbox" class="prep"> Бірнеше «қайнағыш» (фарфор кесектері) салынды</label>
+    <label class="chk"><input type="checkbox" class="prep"> Термометр шарының жоғарғы шеті бүйір түтік деңгейінде</label>
+    <label class="chk"><input type="checkbox" class="prep"> Қондырғы тығыз жиналды, штативке бекітілді</label>
+    <button id="water" class="alt">Суды қосу (төменнен жоғары)</button>
+  </div>
+
+  <div class="panel">
+    <h2>2. Қыздыру</h2>
+    <label for="pow">Қыздыру қуаты: <b id="powv" class="mono">0</b> %</label>
+    <input type="range" id="pow" min="0" max="100" value="0" disabled>
+    <label for="spd">Уақыт жылдамдығы</label>
+    <select id="spd"><option value="1">1×</option><option value="5" selected>5×</option><option value="15">15×</option><option value="40">40×</option></select>
+    <p style="margin:8px 0 0"><button id="start" disabled>Қыздыруды бастау</button><button id="reset" class="alt">Қайта бастау</button></p>
+    <p class="sub" style="margin:6px 0 0;font-size:.9rem">Тамшылау жылдамдығы 1–2 тамшы/с болуы керек. Қуатты 30–60 % аралығында ұстаңыз.</p>
+  </div>
+
+  <div class="panel">
+    <h2>3. Қабылдағыштар</h2>
+    <div class="cyls" id="cyls"></div>
+    <p style="margin:8px 0 0"><button id="next" disabled>Келесі қабылдағышқа ауыстыру</button></p>
+    <p class="sub" style="margin:4px 0 0;font-size:.9rem">Температура фракция шегіне жеткенде қабылдағышты ауыстырыңыз.</p>
+  </div>
+</div>
+</div>
+
+<div class="panel">
+  <h2>Лабораториялық жұмыстың нәтижелері</h2>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Фракция атауы</th><th>Айдаудың температуралық интервалы, °C</th><th>Нақты интервал, °C</th><th>Фракция көлемі, мл</th><th>Фракцияның %-тік құрамы</th></tr></thead>
+    <tbody id="tb"></tbody>
+  </table></div>
+  <p style="margin:8px 0 0"><button id="check" class="alt">Нәтижені тексеру</button></p>
+  <div class="msg" id="conc">Айдау аяқталған соң нәтижені тексеріңіз.</div>
+</div>
+
+<div class="panel">
+  <h2>Бақылау сұрақтары</h2>
+  <details><summary>1. Айдау процесі заттардың қандай қасиетіне негізделген?</summary><p>Заттардың қайнау температуралары әртүрлі болуына: төмен температурада қайнайтын компоненттер алдымен буланып, конденсацияланады, жоғары қайнайтындар колбада қалады.</p></details>
+  <details><summary>2. Атмосфералық қысымда қандай заттар айдалады?</summary><p>Қайнау температурасы шамамен 40–150 °C аралығындағы, қыздырғанда ыдырамайтын сұйықтар. Одан жоғары қайнайтындар үшін ауа тоңазытқышы немесе вакуумда айдау қолданылады.</p></details>
+  <details><summary>3. Айдау кезінде термометр қалай орналасады?</summary><p>Термометр шарының жоғарғы шеті бүйір түтіктің төменгі жиегімен бір деңгейде тұруы тиіс, сонда ол бу температурасын өлшейді.</p></details>
+  <details><summary>4. Қайнағыш не үшін салынады?</summary><p>Бір қалыпты қайнауды қамтамасыз етіп, сұйықтың асқа қызуын және колбадан шашырауын болдырмайды.</p></details>
+  <details><summary>5. Тоңазытқышқа су қалай беріледі?</summary><p>Төменнен жоғары қарай: қарсы ағын тоңазытқыш рубашкасын толық толтырып, буды тиімді салқындатады.</p></details>
+  <details><summary>6. Жеңіл және ауыр бензинді қалай ажыратады?</summary><p>Айдау температуралық интервалымен: жеңіл бензин 90–120 °C, орташа 120–150 °C аралығында жиналады; ауыр фракциялар жоғары температурада қайнайды.</p></details>
+</div>
+
+<script>
+const FR=[
+ {n:"Петролей эфирі",int:"70 °C-ге дейін",hi:70,exp:6},
+ {n:"Лигроин",int:"70–90",hi:90,exp:9},
+ {n:"«Жеңіл» бензин",int:"90–120",hi:120,exp:12},
+ {n:"«Орташа» бензин",int:"120–150",hi:150,exp:13},
+ {n:"Керосин",int:"150–280",hi:280,exp:14}
+];
+const CUM=[[0,48],[6,70],[15,90],[27,120],[40,150],[54,250]],TOTAL=54,START=60;
+function bp(v){for(let i=1;i<CUM.length;i++){if(v<=CUM[i][0]){const[a,b]=CUM[i-1],[c,d]=CUM[i];return b+(d-b)*(v-a)/(c-a)}}return 250}
+const $=id=>document.getElementById(id);
+let S,timer;
+function init(){S={v:0,Tp:20,T:20,t:0,on:false,done:false,act:0,water:false,pts:[],sw:[],rec:FR.map(()=>({vol:0,min:null,max:null}))};}
+init();
+function msg(t,c){$("msg").textContent=t;$("msg").className="msg "+(c||"")}
+$("cyls").innerHTML=FR.map((f,i)=>`<svg viewBox="0 0 50 110" aria-label="${f.n}"><rect id="cy${i}" x="10" y="100" width="30" height="0" fill="#c9a35a"/><path d="M10 8 v92 h30 v-92" fill="none" stroke="#6a8486" stroke-width="2"/><text x="25" y="108" text-anchor="middle" font-size="9" fill="#17282c">${i+1}</text></svg>`).join("");
+const ready=()=>[...document.querySelectorAll(".prep")].every(c=>c.checked);
+function btns(){
+  const r=ready()&&S.water;
+  $("pow").disabled=!r||S.done;
+  $("start").disabled=!r||S.on||S.done;
+  $("next").disabled=!S.on||S.act>=4||S.done;
+}
+document.querySelectorAll(".prep").forEach(c=>c.onchange=()=>{btns();if(ready()&&!S.water)msg("Дайындық дайын. Енді тоңазытқышқа суды қосыңыз.")});
+$("water").onclick=()=>{S.water=!S.water;
+  $("water").textContent=S.water?"Суды өшіру":"Суды қосу (төменнен жоғары)";
+  btns();
+  if(S.water&&ready())msg("Су қосылды. Қыздыруды бастауға болады.","good");
+  else if(S.water)msg("Су қосылды. Дайындық тізімін аяқтаңыз.");
+  else if(S.on)msg("Су өшірілді! Бу жоғалады. Суды қайта қосыңыз.","warn");
+  render();};
+$("pow").oninput=()=>{$("powv").textContent=$("pow").value;render()};
+$("start").onclick=()=>{S.on=true;$("pow").value=45;$("powv").textContent=45;btns();msg("Қыздыру басталды. Колба қызуда...")};
+$("next").onclick=()=>{
+  S.sw[S.act]=S.T;S.act++;btns();
+  msg(`Қабылдағыш №${S.act+1} қосылды (${FR[S.act].n}). Ауысу температурасы: ${S.T.toFixed(0)} °C.`);render();};
+$("reset").onclick=()=>{init();document.querySelectorAll(".prep").forEach(c=>c.checked=false);
+  $("water").textContent="Суды қосу (төменнен жоғары)";$("pow").value=0;$("powv").textContent=0;
+  $("conc").textContent="Айдау аяқталған соң нәтижені тексеріңіз.";$("conc").className="msg";
+  msg("Алдымен дайындық тізімін орындаңыз.");btns();render();};
+$("spd").onchange=()=>{};
+function recFor(T){return T<70?0:T<90?1:T<120?2:T<150?3:4}
+function step(){
+  if(!S.on||S.done)return;
+  const sp=+$("spd").value,dt=0.1*sp,P=+$("pow").value,b=bp(S.v);
+  S.t+=dt;
+  let distilling=false;
+  if(P===0)S.Tp=Math.max(20,S.Tp-0.8*dt);
+  else if(S.Tp<b)S.Tp+=P/100*2.5*dt;
+  else{const tg=b+P*0.05;S.Tp+=(tg-S.Tp)*Math.min(1,dt*0.5);
+    if(P<=15)S.Tp-=0.6*dt;
+    else if(S.water)distilling=true;}
+  if(S.Tp<b)S.T=S.Tp;else S.T=b+Math.sin(S.t*0.7)*0.4;
+  let m=null,c="";
+  if(distilling){
+    const dv=Math.min(TOTAL-S.v,(P-15)/100*0.5*dt);
+    S.v+=dv;const r=S.rec[S.act];r.vol+=dv;
+    r.min=r.min===null?S.T:Math.min(r.min,S.T);r.max=r.max===null?S.T:Math.max(r.max,S.T);
+  }
+  S.dist=distilling;
+  if(!S.water&&S.Tp>=b){m="Тоңазытқышта су жоқ: бу жоғалып жатыр. Суды қосыңыз!";c="warn"}
+  else if(P>85){m="Тым қатты қыздыру: сұйық шашырауы және фракциялар араласуы мүмкін. Қуатты азайтыңыз.";c="warn"}
+  else if(distilling&&S.act<recFor(S.T)&&S.act<4){m=`Температура ${S.T.toFixed(0)} °C. Қабылдағышты ауыстырыңыз (келесі: №${recFor(S.T)+1}).`;c="warn"}
+  else if(distilling){m=`Айдау жүріп жатыр. Қабылдағыш №${S.act+1}: ${FR[S.act].n}.`;c="good"}
+  else if(S.Tp<b)m="Колба қызып жатыр, бу термометрге жетуде...";
+  else if(P<=15)m="Қуат тым төмен: айдау тоқтады. Қуатты арттырыңыз.";
+  if(m)msg(m,c);
+  S.pts.push([S.t,S.T]);if(S.pts.length>3000)S.pts.shift();
+  if(S.v>=TOTAL-1e-6){S.done=true;S.on=false;S.dist=false;$("pow").value=0;$("powv").textContent=0;btns();
+    msg("Айдау аяқталды. Колбада ~6 мл қалдық бар, қыздыру сөндірілді. Нәтижені тексеріңіз.","good");}
+  render();
+}
+const fmt=s=>Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0");
+function render(){
+  const P=+$("pow").value,F=START-S.v;
+  $("rT").textContent=S.T.toFixed(1);$("rV").textContent=S.v.toFixed(1);$("rF").textContent=F.toFixed(1);$("rt").textContent=fmt(S.t);
+  $("flame").setAttribute("opacity",S.on&&P>0?0.5+P/200:0);
+  const h=20+F/START*50;$("liq").setAttribute("y",277-h);$("liq").setAttribute("height",h);
+  $("wtr").setAttribute("opacity",S.water?0.75:0);
+  const mh=12+Math.min(S.T,300)/300*70;$("mer").setAttribute("y",122-mh);$("mer").setAttribute("height",mh);
+  const boil=S.on&&S.Tp>=bp(S.v)&&P>15;
+  $("bub1").setAttribute("opacity",boil?.9:0);$("bub2").setAttribute("opacity",boil?.9:0);
+  $("bub1").setAttribute("cy",250-((S.t*8)%60));$("bub2").setAttribute("cy",245-((S.t*6+20)%55));
+  $("drop").setAttribute("opacity",S.dist?1:0);$("drop").setAttribute("cy",236+((S.t*10)%16));
+  const rh=S.v/TOTAL*48;$("recfill").setAttribute("y",295-rh);$("recfill").setAttribute("height",rh);
+  S.rec.forEach((r,i)=>{const hh=Math.min(90,r.vol/14*90);$("cy"+i).setAttribute("y",100-hh);$("cy"+i).setAttribute("height",hh);
+    $("cy"+i).setAttribute("stroke",i===S.act?"#e8a317":"none");$("cy"+i).setAttribute("stroke-width",3);});
+  const tot=S.rec.reduce((a,r)=>a+r.vol,0);
+  $("tb").innerHTML=FR.map((f,i)=>{const r=S.rec[i];
+    return `<tr><td>${i+1}. ${f.n}</td><td>${f.int}</td><td class="n">${r.min===null?"—":r.min.toFixed(0)+"–"+r.max.toFixed(0)}</td><td class="n">${r.vol.toFixed(1)}</td><td class="n">${tot>0?(r.vol/tot*100).toFixed(1)+" %":"—"}</td></tr>`}).join("")
+    +`<tr><th colspan="3">Барлығы</th><th class="n">${tot.toFixed(1)}</th><th class="n">${tot>0?"100 %":"—"}</th></tr>`;
+  chart();
+}
+function chart(){
+  const cv=$("chart"),g=cv.getContext("2d"),W=cv.width,H=cv.height,L=44,B=24;
+  g.clearRect(0,0,W,H);g.font="12px sans-serif";
+  const tmax=Math.max(300,S.t*1.05);
+  const X=t=>L+t/tmax*(W-L-10),Y=T=>H-B-T/300*(H-B-10);
+  g.strokeStyle="#c9d4d3";g.fillStyle="#5d7075";
+  [0,70,90,120,150,280].forEach(T=>{g.beginPath();g.moveTo(L,Y(T));g.lineTo(W-10,Y(T));g.stroke();g.fillText(T+"°",6,Y(T)+4)});
+  g.fillText("уақыт, с",W-70,H-6);
+  g.strokeStyle="#0f6b78";g.lineWidth=2;g.beginPath();
+  S.pts.forEach((p,i)=>{i?g.lineTo(X(p[0]),Y(p[1])):g.moveTo(X(p[0]),Y(p[1]))});g.stroke();g.lineWidth=1;
+}
+$("check").onclick=()=>{
+  const tot=S.rec.reduce((a,r)=>a+r.vol,0);
+  if(tot<1){$("conc").textContent="Алдымен айдауды орындаңыз.";$("conc").className="msg warn";return}
+  let ok=0,lines=[];
+  FR.forEach((f,i)=>{const d=S.rec[i].vol-f.exp;const good=Math.abs(d)<=2;if(good)ok++;
+    lines.push(`${f.n}: ${S.rec[i].vol.toFixed(1)} мл (күтілетін ~${f.exp} мл) ${good?"✓":"✗"}`)});
+  $("conc").textContent=`Дұрыс фракциялар: ${ok}/5. `+lines.join("; ")+(ok===5?". Тамаша жұмыс!":". Қабылдағышты ауыстыру температурасын 70, 90, 120, 150 °C шегінде жасаңыз.");
+  $("conc").className="msg "+(ok>=4?"good":"warn");
+};
+setInterval(step,100);btns();render();
+</script>
+</body>
+</html>
